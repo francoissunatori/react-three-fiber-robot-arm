@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import * as THREE from 'three'
 import { CameraControls } from './three-utils'
 import { Canvas } from '@react-three/fiber'
 import RobotArm from './RobotArm'
@@ -17,27 +18,27 @@ export default function App() {
     <>
       <div>
         Joint 1
-        <input type="range" min="0" max="360" value={joint1} onChange={(e) => setJoint1(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint1} onChange={(e) => setJoint1(e.target.value)} />
       </div>
       <div>
         Joint 2
-        <input type="range" min="0" max="360" value={joint2} onChange={(e) => setJoint2(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint2} onChange={(e) => setJoint2(e.target.value)} />
       </div>
       <div>
         Joint 3
-        <input type="range" min="0" max="360" value={joint3} onChange={(e) => setJoint3(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint3} onChange={(e) => setJoint3(e.target.value)} />
       </div>
       <div>
         Joint 4
-        <input type="range" min="0" max="360" value={joint4} onChange={(e) => setJoint4(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint4} onChange={(e) => setJoint4(e.target.value)} />
       </div>
       <div>
         Joint 5
-        <input type="range" min="0" max="360" value={joint5} onChange={(e) => setJoint5(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint5} onChange={(e) => setJoint5(e.target.value)} />
       </div>
       <div>
         Joint 6
-        <input type="range" min="0" max="360" value={joint6} onChange={(e) => setJoint6(e.target.value)} class="slider" id="myRange" />
+        <input type="range" min="0" max="360" value={joint6} onChange={(e) => setJoint6(e.target.value)} />
       </div>
       <Canvas>
         <CameraControls />
@@ -57,6 +58,9 @@ export default function App() {
             joint6 * DEG_TO_RAD
           ]}
         />
+        <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 3, 0x0000ff]} />
+        <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 3, 0x00ff00]} />
+        <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 3, 0xff0000]} />
       </Canvas>
     </>
   )
