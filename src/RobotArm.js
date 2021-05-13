@@ -1,5 +1,7 @@
+import { useState, useRef } from 'react'
 import { useGesture } from 'react-use-gesture'
-import { vectorMulScalar } from './math'
+import { useFrame } from '@react-three/fiber'
+import { addVector, vectorMulScalar } from './math'
 
 export default function RobotArm({ segmentDimensions, jointAngles }) {
   const posedSegments = segmentDimensions.reduce((acc, curr, i) => {
@@ -15,11 +17,6 @@ export default function RobotArm({ segmentDimensions, jointAngles }) {
 }
 
 function Chain(links) {
-  const bind = useGesture({
-    onDrag: ({ offset: [x, y] }) => console.log(x, y),
-    onHover: () => console.log('hovering')
-  })
-
   if (!links.length) {
     return
   }
@@ -30,7 +27,7 @@ function Chain(links) {
     <group {...{ position, rotation }}>
       <Box color={'orange'} {...{ dimensions }} position={vectorMulScalar(dimensions, 0.5)} />
       {Chain(tail)}
-      {hasDragger ? <Sphere {...{ bind }} color={'green'} position={dimensions} /> : null}
+      {hasDragger && <Sphere color={'green'} position={dimensions} />}
     </group>
   )
 }
@@ -44,9 +41,16 @@ function Box({ position, dimensions, color }) {
   )
 }
 
-function Sphere({ bind, position, color }) {
+function Sphere({ position, color }) {
+  const ref = useRef()
+  const [sphereOffset, setSphereOffset] = useState([0, 0, 0])
+
+  const bind = useGesture({
+    onDrag: ({ offset: [x, y, z] }) => setSphereOffset([x, y, z])
+  })
+
   return (
-    <mesh {...bind()} {...{ position }}>
+    <mesh ref={ref} {...bind()} {...{ position: sphereOffset }}>
       <sphereGeometry args={[0.5, 16, 16]} />
       <meshStandardMaterial color={color} />
     </mesh>
