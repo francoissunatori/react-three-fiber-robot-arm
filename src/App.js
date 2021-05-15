@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import * as THREE from 'three'
-import { CameraControls } from './three-utils'
+import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import RobotArm from './RobotArm'
 
@@ -41,7 +41,7 @@ export default function App() {
         <input type="range" min="0" max="360" value={joint6} onChange={(e) => setJoint6(e.target.value)} />
       </div>
       <Canvas>
-        <CameraControls />
+        <OrbitControls />
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />

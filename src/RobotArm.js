@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { useGesture } from 'react-use-gesture'
-import { useFrame } from '@react-three/fiber'
-import { addVector, vectorMulScalar } from './math'
+import { vectorMulScalar } from './math'
 
 export default function RobotArm({ segmentDimensions, jointAngles }) {
   const posedSegments = segmentDimensions.reduce((acc, curr, i) => {
