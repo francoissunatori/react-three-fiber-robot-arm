@@ -1,12 +1,34 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import RobotArm from './RobotArm'
+import OrocosKDLLoader from './OrocosKDLLoader'
+import OrocosKDLRobotFactory from './OrocosKDLRobotFactory'
 
 const DEG_TO_RAD = Math.PI / 180
 
 export default function App() {
+  useEffect(() => {
+    (
+      async function() {
+        const OrocosKDL = await OrocosKDLLoader.load()
+
+        const segments = [
+          /* base */         new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.None), OrocosKDL.Frame.DH(0, 0, 0, 0)),
+          /* link 1 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, Math.PI / 2, 0.1625, 0)),
+          /* link 2 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(-0.425, 0, 0, 0)),
+          /* link 3 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(-0.3922, 0, 0, 0)),
+          /* link 4 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, Math.PI / 2, 0.1333, 0)),
+          /* link 5 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, -Math.PI / 2, 0.0997, 0)),
+          /* end effector */ new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, 0, 0.0996, 0)),
+        ]
+
+        const orocosKDLRobot = OrocosKDLRobotFactory.create(OrocosKDL, segments)
+        console.log('orocosKDLRobot :>> ', orocosKDLRobot);
+    })();
+  })
+
   const [joint1, setJoint1] = useState(0)
   const [joint2, setJoint2] = useState(0)
   const [joint3, setJoint3] = useState(0)
