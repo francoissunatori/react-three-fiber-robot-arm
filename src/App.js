@@ -5,10 +5,13 @@ import { Canvas } from '@react-three/fiber'
 import RobotArm from './RobotArm'
 import OrocosKDLLoader from './OrocosKDLLoader'
 import OrocosKDLRobotFactory from './OrocosKDLRobotFactory'
+import { Sphere } from './threejs-utils'
 
 const DEG_TO_RAD = Math.PI / 180
 
 export default function App() {
+  const [triadPosition, setTriadPosition] = useState([])
+
   useEffect(() => {
     (
       async function() {
@@ -25,9 +28,9 @@ export default function App() {
         ]
 
         const orocosKDLRobot = OrocosKDLRobotFactory.create(OrocosKDL, segments)
-        console.log('orocosKDLRobot :>> ', orocosKDLRobot);
+        setTriadPosition(orocosKDLRobot.getThreeJsVector3SegmentTipAtIndexPosition(5))
     })();
-  })
+  }, [])
 
   const [joint1, setJoint1] = useState(0)
   const [joint2, setJoint2] = useState(0)
@@ -80,10 +83,19 @@ export default function App() {
             joint6 * DEG_TO_RAD
           ]}
         />
-        <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 3, 0x0000ff]} />
-        <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 3, 0x00ff00]} />
-        <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 3, 0xff0000]} />
+        <Triad />
+        <Sphere color={'green'} position={triadPosition} />
       </Canvas>
+    </>
+  )
+}
+
+function Triad() {
+  return (
+    <>
+      <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 3, 0x0000ff]} />
+      <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 3, 0x00ff00]} />
+      <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 3, 0xff0000]} />
     </>
   )
 }

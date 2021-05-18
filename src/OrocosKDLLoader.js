@@ -1,4 +1,6 @@
+import * as THREE from 'three'
 import createOrocosKDL from "./OrocosKDLFactory.mjs";
+import { getJsArrayFromStdVector } from './utils'
 
 async function load () {
   const OrocosKDL = await createOrocosKDL()
@@ -18,28 +20,41 @@ async function load () {
         OrocosKDL.setJntArrayDataAtIndex(lThis, i, pJsArray[i]);
       });
     };
-  
-  OrocosKDL.Frame.prototype.getPositionThreeJsVector =
+
+  OrocosKDL.Frame.prototype.getJsArrayPosition =
     function () {
-      var arr = getJsArrayFromStdVector(
+      return getJsArrayFromStdVector(
         OrocosKDL.getStdVectorFromVector(
           OrocosKDL.Frame_getPositionVector(this)
         )
       );
-  
-      return (new THREE.Vector3(
-        arr[0],
-        arr[1],
-        arr[2]
-      ));
+    };
+
+  OrocosKDL.Frame.prototype.getJsArrayRotation =
+    function () {
+      return getJsArrayFromStdVector(
+        OrocosKDL.getStdVectorFromRotation(
+          OrocosKDL.Frame_getRotation(this)
+        )
+      );
     };
   
-  OrocosKDL.Vector.fromThreeJsVector =
-    function (pThreeJsVector) {
+  OrocosKDL.Frame.prototype.getThreeJsVector3Position =
+    function () {
+      return new THREE.Vector3(...this.getJsArrayPosition());
+    };
+
+  OrocosKDL.Frame.prototype.getThreeJsVector3Rotation =
+    function () {
+      return new THREE.Vector3(...this.getJsArrayRotation());
+    };
+
+  OrocosKDL.Vector.fromThreeJsVector3 =
+    function (threeJsVector3) {
       return new OrocosKDL.Vector(
-        pThreeJsVector.x,
-        pThreeJsVector.y,
-        pThreeJsVector.z
+        threeJsVector3.x,
+        threeJsVector3.y,
+        threeJsVector3.z
       );
     };
 
