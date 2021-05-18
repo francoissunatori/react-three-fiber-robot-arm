@@ -2,37 +2,40 @@ import React, { useEffect, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import RobotArm from './RobotArm'
+import RobotArmDH from './RobotArmDH'
 import OrocosKDLLoader from './OrocosKDLLoader'
 import OrocosKDLRobotFactory from './OrocosKDLRobotFactory'
 import { Sphere } from './threejs-utils'
 
 const DEG_TO_RAD = Math.PI / 180
+const jsArrayDHParameters = [
+  // a, alpha, d, theta
+  // https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/
+  /* base */         [0, 0, 0, 0],
+  /* link 1 */       [0, Math.PI / 2, 0.1625, 0],
+  /* link 2 */       [-0.425, 0, 0, 0],
+  /* link 3 */       [-0.3922, 0, 0, 0],
+  /* link 4 */       [0, Math.PI / 2, 0.1333, 0],
+  /* link 5 */       [0, -Math.PI / 2, 0.0997, 0],
+  /* end effector */ [0, 0, 0.0996, 0],
+]
 
 export default function App() {
   const [triadPosition, setTriadPosition] = useState([])
+  const [joints, setJoints] = useState(new Array(6).fill(0))
 
   useEffect(() => {
     (
-      async function() {
+      async () => {
         const OrocosKDL = await OrocosKDLLoader.load()
-
-        const segments = [
-          /* base */         new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.None), OrocosKDL.Frame.DH(0, 0, 0, 0)),
-          /* link 1 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, Math.PI / 2, 0.1625, 0)),
-          /* link 2 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(-0.425, 0, 0, 0)),
-          /* link 3 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(-0.3922, 0, 0, 0)),
-          /* link 4 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, Math.PI / 2, 0.1333, 0)),
-          /* link 5 */       new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, -Math.PI / 2, 0.0997, 0)),
-          /* end effector */ new OrocosKDL.Segment(new OrocosKDL.Joint(OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(0, 0, 0.0996, 0)),
-        ]
+        const segments = jsArrayDHParameters.map((segment, i) =>
+          new OrocosKDL.Segment(new OrocosKDL.Joint(i === 0 ? OrocosKDL.JointType.None : OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(...segment))
+        )
 
         const orocosKDLRobot = OrocosKDLRobotFactory.create(OrocosKDL, segments)
         setTriadPosition(orocosKDLRobot.getThreeJsVector3SegmentTipAtIndexPosition(5))
     })();
   }, [])
-
-  const [joints, setJoints] = useState(new Array(6).fill(0))
 
   return (
     <>
@@ -49,10 +52,8 @@ export default function App() {
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
-        <RobotArm
-          segmentDimensions={new Array(6).fill({
-            dimensions: [0.5, 2, 0.5]
-          })}
+        <RobotArmDH
+          DHParameters={jsArrayDHParameters}
           jointAngles={joints.map(joint => joint * DEG_TO_RAD)}
         />
         <Triad />
@@ -65,9 +66,9 @@ export default function App() {
 function Triad() {
   return (
     <>
-      <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 3, 0x0000ff]} />
-      <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 3, 0x00ff00]} />
-      <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 3, 0xff0000]} />
+      <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), 0.1, 0x0000ff]} />
+      <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 0.1, 0x00ff00]} />
+      <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 0.1, 0xff0000]} />
     </>
   )
 }

@@ -1,27 +1,17 @@
-import { useState, useRef } from 'react'
-import { useGesture } from 'react-use-gesture'
-
-function Box({ position, dimensions, color }) {
+function Box({ position, rotation, dimensions, color }) {
   return (
-    <mesh {...{ position }}>
+    <mesh {...{ position, rotation }}>
       <boxGeometry args={dimensions} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial {...{ color }} />
     </mesh>
   )
 }
 
-function Sphere({ position, color }) {
-  const ref = useRef()
-  const [sphereOffset, setSphereOffset] = useState([0, 0, 0])
-
-  const bind = useGesture({
-    onDrag: ({ offset: [x, y, z] }) => setSphereOffset([x, y, z])
-  })
-
+function Sphere({ position, rotation, color }) {
   return (
-    <mesh ref={ref} {...bind()} {...{ position: sphereOffset }}>
-      <sphereGeometry args={[0.5, 16, 16]} />
-      <meshStandardMaterial color={color} />
+    <mesh {...{ position, rotation }}>
+      <sphereGeometry args={[0.05, 16, 16]} />
+      <meshStandardMaterial {...{ color }} />
     </mesh>
   )
 }
