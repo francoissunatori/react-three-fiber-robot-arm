@@ -1,6 +1,9 @@
 import { Box } from './threejs-utils'
 
-export default function RobotArmDH({ DHParameters, jointAngles }) {
+export default function RobotArmDH({
+  DHParameters,
+  jointAngles
+}) {
   const [a0, alpha0, d0, theta0] = DHParameters[0]
   const [a1, alpha1, d1, theta1] = DHParameters[1]
   const [a2, alpha2, d2, theta2] = DHParameters[2]
@@ -52,22 +55,22 @@ export default function RobotArmDH({ DHParameters, jointAngles }) {
             />
             <group
               position={[0, 0, d4]}
-              rotation={[0, jointAngles[4], 0]}
+              rotation={[0, Math.PI - jointAngles[4], 0]}
             >
               <Box
                 color={'orange'}
                 dimensions={[0.05, 0.05, d5]}
-                position={[0, d5 / 2, 0]}
+                position={[0, -d5 / 2, 0]}
                 rotation={[-Math.PI / 2, 0, 0]}
               />
               <group
-                position={[0, d4, 0]}
+                position={[0, -d5, 0]}
                 rotation={[0, 0, jointAngles[5]]}
               >
                 <Box
                   color={'orange'}
                   dimensions={[0.05, 0.05, d6]}
-                  position={[0, 0, d6 / 2]}
+                  position={[0, 0, -d6 / 2]}
                   rotation={[0, 0, 0]}
                 />
               </group>

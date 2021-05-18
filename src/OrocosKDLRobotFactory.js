@@ -54,7 +54,7 @@ function create(OrocosKDL, pOrocosKDLSegments) {
           jointAngles || new Array(nrOfJoints).fill(0)
         )
   ,
-    setJntAngleAtIndex:
+    setAtIndexJntAngle:
       (index, newJointAngle) =>
         lOrocosKDLRobotJntArray.fromJsArray(
           lOrocosKDLRobotJntArray.toJsArray()

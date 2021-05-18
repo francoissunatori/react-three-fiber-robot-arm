@@ -21,8 +21,8 @@ const jsArrayDHParameters = [
 ]
 
 export default function App() {
-  const [triadPosition, setTriadPosition] = useState([])
   const [joints, setJoints] = useState(new Array(6).fill(0))
+  const [orocosKDLRobot, setOrocosKDLRobot] = useState(null)
 
   useEffect(() => {
     (
@@ -32,10 +32,16 @@ export default function App() {
           new OrocosKDL.Segment(new OrocosKDL.Joint(i === 0 ? OrocosKDL.JointType.None : OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(...segment))
         )
 
-        const orocosKDLRobot = OrocosKDLRobotFactory.create(OrocosKDL, segments)
-        setTriadPosition(orocosKDLRobot.getThreeJsVector3SegmentTipAtIndexPosition(5))
+        setOrocosKDLRobot(OrocosKDLRobotFactory.create(OrocosKDL, segments))
     })();
   }, [])
+
+  let vector
+  if (orocosKDLRobot) {
+    vector = new THREE.Vector3().fromArray(orocosKDLRobot?.getThreeJsVector3SegmentTipAtIndexPosition(7))
+    const axis = new THREE.Vector3(1, 0, 0)
+    vector.applyAxisAngle(axis, -Math.PI / 2)
+  }
 
   return (
     <>
@@ -43,7 +49,12 @@ export default function App() {
         joints.map((joint, i) =>
           <div>
             {`Joint${i}`}
-            <input type="range" min="0" max="360" value={joint} onChange={(e) => setJoints(joints.map((joint, j) => j === i ? e.target.value : joint))} />
+            <input type="range" min="0" max="360" value={joint}
+              onChange={(e) => {
+                setJoints(joints.map((joint, j) => j === i ? e.target.value : joint));
+                orocosKDLRobot.setAtIndexJntAngle(i, Number(e.target.value * DEG_TO_RAD))
+              }}
+              />
           </div>
         )
       }
@@ -57,7 +68,7 @@ export default function App() {
           jointAngles={joints.map(joint => joint * DEG_TO_RAD)}
         />
         <Triad />
-        <Sphere color={'green'} position={triadPosition} />
+        {vector && <Sphere color={'green'} position={vector.toArray()} />}
       </Canvas>
     </>
   )
