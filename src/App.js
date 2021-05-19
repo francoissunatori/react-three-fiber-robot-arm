@@ -71,12 +71,16 @@ export default function App() {
             color={'green'}
             position={position}
             onDrag={position => {
-              setPosition(position)
               const vector = new THREE.Vector3().fromArray(position)
               const axis = new THREE.Vector3(1, 0, 0)
               vector.applyAxisAngle(axis, Math.PI / 2)
-              orocosKDLRobot.setEndEffectorPoseFromPointPosition(vector.toArray())
-              setJoints(orocosKDLRobot?.getJntArray().map(joint => joint / DEG_TO_RAD))
+              try {
+                orocosKDLRobot.setEndEffectorPoseFromPointPosition(vector.toArray())
+                setPosition(position)
+                setJoints(orocosKDLRobot?.getJntArray().map(joint => joint / DEG_TO_RAD))
+              } catch (e) {
+                console.log(e)
+              }
             }}
           />
         }
