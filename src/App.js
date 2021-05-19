@@ -22,6 +22,7 @@ const jsArrayDHParameters = [
 
 export default function App() {
   const [joints, setJoints] = useState(new Array(6).fill(0))
+  const [position, setPosition] = useState([0, 0, 0])
   const [orocosKDLRobot, setOrocosKDLRobot] = useState(null)
 
   useEffect(() => {
@@ -36,13 +37,6 @@ export default function App() {
     })();
   }, [])
 
-  let vector
-  if (orocosKDLRobot) {
-    vector = new THREE.Vector3().fromArray(orocosKDLRobot?.getThreeJsVector3SegmentTipAtIndexPosition(7))
-    const axis = new THREE.Vector3(1, 0, 0)
-    vector.applyAxisAngle(axis, -Math.PI / 2)
-  }
-
   return (
     <>
       {
@@ -51,15 +45,19 @@ export default function App() {
             {`Joint${i}`}
             <input type="range" min="0" max="360" value={joint}
               onChange={(e) => {
-                setJoints(joints.map((joint, j) => j === i ? e.target.value : joint));
+                setJoints(joints.map((joint, j) => j === i ? Number(e.target.value) : joint));
                 orocosKDLRobot.setAtIndexJntAngle(i, Number(e.target.value * DEG_TO_RAD))
+                const vector = new THREE.Vector3().fromArray(orocosKDLRobot?.getThreeJsVector3SegmentTipAtIndexPosition(7))
+                const axis = new THREE.Vector3(1, 0, 0)
+                vector.applyAxisAngle(axis, -Math.PI / 2)
+                setPosition(vector.toArray())
               }}
               />
           </div>
         )
       }
       <Canvas>
-        <OrbitControls />
+        {/* <OrbitControls /> */}
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
@@ -68,7 +66,20 @@ export default function App() {
           jointAngles={joints.map(joint => joint * DEG_TO_RAD)}
         />
         <Triad />
-        {vector && <Sphere color={'green'} position={vector.toArray()} />}
+        {
+          <Sphere
+            color={'green'}
+            position={position}
+            onDrag={position => {
+              setPosition(position)
+              const vector = new THREE.Vector3().fromArray(position)
+              const axis = new THREE.Vector3(1, 0, 0)
+              vector.applyAxisAngle(axis, Math.PI / 2)
+              orocosKDLRobot.setEndEffectorPoseFromPointPosition(vector.toArray())
+              setJoints(orocosKDLRobot?.getJntArray().map(joint => joint / DEG_TO_RAD))
+            }}
+          />
+        }
       </Canvas>
     </>
   )

@@ -38,6 +38,9 @@ function create(OrocosKDL, pOrocosKDLSegments) {
   }
 
   return {
+    getJntArray:
+      () => lOrocosKDLRobotJntArray.toJsArray()
+  ,
     getThreeJsVector3SegmentTipAtIndexPosition:
       index =>
         getSegmentTipAtIndexFrame(index)
