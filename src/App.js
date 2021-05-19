@@ -6,6 +6,7 @@ import RobotArmDH from './RobotArmDH'
 import OrocosKDLLoader from './OrocosKDLLoader'
 import OrocosKDLRobotFactory from './OrocosKDLRobotFactory'
 import { Sphere } from './threejs-utils'
+import { useKeyPress } from './hooks'
 
 const DEG_TO_RAD = Math.PI / 180
 const jsArrayDHParameters = [
@@ -24,6 +25,7 @@ export default function App() {
   const [joints, setJoints] = useState(new Array(6).fill(0))
   const [position, setPosition] = useState([0, 0, 0])
   const [orocosKDLRobot, setOrocosKDLRobot] = useState(null)
+  const robotPress = useKeyPress("e");
 
   useEffect(() => {
     (
@@ -57,7 +59,8 @@ export default function App() {
         )
       }
       <Canvas>
-        {/* <OrbitControls /> */}
+        {robotPress &&
+          <OrbitControls />}
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
