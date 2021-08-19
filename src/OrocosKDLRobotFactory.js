@@ -78,6 +78,50 @@ function create(OrocosKDL, pOrocosKDLSegments) {
             )
           );
       }
+  ,
+    getSegmentTipAtIndexFrame
+  ,
+    planMoveL:
+      (startFrame, goalFrame) => {
+        const map = new OrocosKDL.map$string$$double$();
+
+        lOrocosKDLRobotJntArray.toJsArray()
+          .forEach((angle, i) => map.set(i + "", angle));
+
+        const mapKeys = map.keys();
+        for (let i = 0; i < mapKeys.size(); i++) {
+          const key = mapKeys.get(i);
+          console.log("Map key/value: ", key, map.get(key));
+        }
+
+        console.log('lOrocosKDLRobotJntArray.toJsArray() :>> ', lOrocosKDLRobotJntArray.toJsArray());
+        const plan = OrocosKDL.plan(0.1, 0.1, startFrame, goalFrame, 0.5, 0.5, 5, map, chain);
+
+        console.log('plan.points :>> ', plan.points);
+        const planJsArray = [];
+        for (let i = 0; i < plan.points.size(); i++) {
+          console.log(
+            'plan.points[', i, '] :>> ',
+            plan.points.get(i)
+          );
+
+          const positions = [];
+          for (let j = 0; j < plan.points.get(i).positions.size(); j++) {
+            console.log(
+              'plan.points[', i, '].positions[', j, '] :>> ',
+              plan.points.get(i).positions.get(j)
+            );
+
+            positions.push(plan.points.get(i).positions.get(j));
+          }
+
+          planJsArray.push({
+            positions
+          });
+        }
+
+        return planJsArray;
+      }
   }
 }
 

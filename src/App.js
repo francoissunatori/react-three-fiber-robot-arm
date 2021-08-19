@@ -9,6 +9,7 @@ import { Sphere } from './threejs-utils'
 import { useKeyPress } from './hooks'
 
 const DEG_TO_RAD = Math.PI / 180
+const RAD_TO_DEG = 180 / Math.PI
 const jsArrayDHParameters = [
   // a, alpha, d, theta
   // https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/
@@ -21,16 +22,22 @@ const jsArrayDHParameters = [
   /* end effector */ [0, 0, 0.0996, 0],
 ]
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default function App() {
   const [joints, setJoints] = useState(new Array(6).fill(0))
   const [position, setPosition] = useState([0, 0, 0])
   const [orocosKDLRobot, setOrocosKDLRobot] = useState(null)
+  const [, setOrocosKDL] = useState(null)
+  const [startFrame, setStartFrame] = useState(null)
+  const [goalFrame, setGoalFrame] = useState(null)
   const robotPress = useKeyPress("e");
 
   useEffect(() => {
     (
       async () => {
         const OrocosKDL = await OrocosKDLLoader.load()
+        setOrocosKDL(OrocosKDL)
         const segments = jsArrayDHParameters.map((segment, i) =>
           new OrocosKDL.Segment(new OrocosKDL.Joint(i === 0 ? OrocosKDL.JointType.None : OrocosKDL.JointType.RotZ), OrocosKDL.Frame.DH(...segment))
         )
@@ -58,6 +65,31 @@ export default function App() {
           </div>
         )
       }
+      <button onClick={() => {
+        setStartFrame(orocosKDLRobot.getSegmentTipAtIndexFrame(7))
+      }}>
+        set start pose
+      </button>
+      <button onClick={() => {
+        setGoalFrame(orocosKDLRobot.getSegmentTipAtIndexFrame(7))
+      }}>
+        set goal pose
+      </button>
+      <button onClick={async () => {
+        const plan = orocosKDLRobot.planMoveL(startFrame, goalFrame);
+        console.log('plan :>> ', plan);
+
+        for (const planPoint of plan) {
+          const { positions } = planPoint;
+          console.log('positions :>> ', positions);
+
+          setJoints(positions.map(position => position * RAD_TO_DEG))
+
+          await delay(300);
+        }
+      }}>
+        plan MoveL
+      </button>
       <Canvas>
         {robotPress &&
           <OrbitControls />}
